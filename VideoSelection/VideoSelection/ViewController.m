@@ -75,32 +75,34 @@
              options.networkAccessAllowed = YES;
              PHImageManager *manager = [PHImageManager defaultManager];
              [manager requestAVAssetForVideo:phAsset options:options resultHandler:^(AVAsset * _Nullable asset, AVAudioMix * _Nullable audioMix, NSDictionary * _Nullable info) {
-               AVURLAsset *urlAsset = (AVURLAsset *)asset;
-                   
-                   NSURL *url = urlAsset.URL;
-                
-                  
-                   NSString *urlStr = [[url absoluteString] substringFromIndex:7];
-                  
-                   NSDictionary *dicc = [self getVideoInfoWithSourcePath:urlStr];
-                                    
-                   UIImage *image =[self firstFrameWithVideoURL:url size:CGSizeMake(kWidth, kWidth)];
-                     NSString *timeStr =[dicc objectForKey:@"duration"];
-                   [self.timeArr addObject:timeStr];
-                   [self.urlArr addObject:urlStr];
-                   [self.imageArr addObject:image];
-                  
-                   dispatch_async(dispatch_get_main_queue(), ^{
+                 if (asset && [asset isKindOfClass:[AVURLAsset class]]) {
+                     AVURLAsset *urlAsset = (AVURLAsset *)asset;
+                        
+                        NSURL *url = urlAsset.URL;
+                     
                        
-                        [self.collectionView reloadData];
-                       NSIndexPath *indexPath = [NSIndexPath indexPathForRow:0 inSection:0];
+                        NSString *urlStr = [[url absoluteString] substringFromIndex:7];
                        
-                       [self.collectionView selectItemAtIndexPath:indexPath animated:NO scrollPosition:UICollectionViewScrollPositionNone];
-                       [self collectionView:self.collectionView didSelectItemAtIndexPath:indexPath];
-                      NSString *str = [NSString stringWithFormat:@"%@",self.urlArr[0]];
-                         
-                          self->_player.videoURL = [NSURL fileURLWithPath:str isDirectory:YES];
-                   });
+                        NSDictionary *dicc = [self getVideoInfoWithSourcePath:urlStr];
+                                         
+                        UIImage *image =[self firstFrameWithVideoURL:url size:CGSizeMake(kWidth, kWidth)];
+                          NSString *timeStr =[dicc objectForKey:@"duration"];
+                        [self.timeArr addObject:timeStr];
+                        [self.urlArr addObject:urlStr];
+                        [self.imageArr addObject:image];
+                       
+                        dispatch_async(dispatch_get_main_queue(), ^{
+                            
+                             [self.collectionView reloadData];
+                            NSIndexPath *indexPath = [NSIndexPath indexPathForRow:0 inSection:0];
+                            
+                            [self.collectionView selectItemAtIndexPath:indexPath animated:NO scrollPosition:UICollectionViewScrollPositionNone];
+                            [self collectionView:self.collectionView didSelectItemAtIndexPath:indexPath];
+                           NSString *str = [NSString stringWithFormat:@"%@",self.urlArr[0]];
+                              
+                               self->_player.videoURL = [NSURL fileURLWithPath:str isDirectory:YES];
+                        });
+                 }
                   
               
              }];
